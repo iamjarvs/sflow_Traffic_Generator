@@ -1,0 +1,17 @@
+---
+- name: Update Interface Index Mapping
+  hosts: all
+  become: yes
+  
+  tasks:
+    - name: Backup current mapping
+      copy:
+        src: "{{ interface_file_path }}"
+        dest: "{{ interface_file_path }}.backup.{{ ansible_date_time.iso8601 }}"
+        remote_src: yes
+      
+    - name: Update interface mapping
+      copy:
+        content: "{{ interface_content }}"
+        dest: "{{ interface_file_path }}"
+        mode: '0644'

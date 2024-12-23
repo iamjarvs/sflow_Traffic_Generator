@@ -1,0 +1,10 @@
+{
+  "mappings": {
+    "interface_index": {
+      "properties": {
+        "interface": { "type": "keyword" },
+        "index": { "type": "integer" }
+      }
+    }
+  }
+}
