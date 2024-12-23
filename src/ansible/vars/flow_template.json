@@ -1,0 +1,8 @@
+{
+  "static_meta_mapping": {
+    "enabled": true,
+    "properties": {
+      "meta_field": "value"
+    }
+  }
+}

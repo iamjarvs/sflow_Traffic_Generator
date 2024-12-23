@@ -1,0 +1,60 @@
+#ansible-playbook start_script.yml -i inventory -e "script_path=/path/to/script.py" -e '{"script_params": {"port": "8080", "sample_rate": "100"}}'
+
+---
+- name: Start Python Script
+  hosts: all
+  become: true
+  tasks:
+    - name: Ensure Python3 and pip are installed
+      apt:
+        name: 
+          - python3
+          - python3-pip
+        state: present
+        update_cache: yes
+
+    - name: Create script directory
+      file:
+        path: /opt/scripts
+        state: directory
+        mode: '0755'
+
+    - name: Copy Python script
+      copy:
+        src: "scripts/sflow_generator.py"  # Path to your Python script
+        dest: /opt/scripts/script.py
+        mode: '0755'
+
+    - name: Create systemd service file
+      copy:
+        content: |
+          [Unit]
+          Description=sFlow Generator Service
+          After=network.target
+
+          [Service]
+          Type=simple
+          ExecStart=/usr/bin/python3 /opt/scripts/sflow_generator.py \
+            --collector {{ collector_ip }} \
+            --port {{ collector_port | default(6343) }} \
+            --sampling-rate {{ sampling_rate | default(1000) }}
+          Restart=always
+          User=root
+          StandardOutput=append:/var/log/sflow_generator.log
+          StandardError=append:/var/log/sflow_generator.log
+
+          [Install]
+          WantedBy=multi-user.target
+        dest: /etc/systemd/system/sflow-generator.service
+        mode: '0644'
+
+    - name: Reload systemd
+      systemd:
+        daemon_reload: yes
+
+    - name: Start and enable sFlow generator service
+      systemd:
+        name: sflow-generator
+        state: started
+        enabled: yes
+

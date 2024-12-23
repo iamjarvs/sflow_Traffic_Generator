@@ -1,0 +1,26 @@
+---
+- name: Stop Python Script
+  hosts: all
+  become: true
+  tasks:
+    - name: Stop continuous script service
+      systemd:
+        name: continuous-script
+        state: stopped
+      ignore_errors: yes
+
+    - name: Disable continuous script service
+      systemd:
+        name: continuous-script
+        enabled: no
+      ignore_errors: yes
+
+    - name: Remove service file
+      file:
+        path: /etc/systemd/system/continuous-script.service
+        state: absent
+      ignore_errors: yes
+
+    - name: Reload systemd
+      systemd:
+        daemon_reload: yes

@@ -1,0 +1,17 @@
+---
+- name: Update Flow Configuration
+  hosts: all
+  become: yes
+  
+  tasks:
+    - name: Backup current configuration
+      copy:
+        src: "{{ flow_config_path }}"
+        dest: "{{ flow_config_path }}.backup.{{ ansible_date_time.iso8601 }}"
+        remote_src: yes
+      
+    - name: Update flow configuration
+      copy:
+        content: "{{ flow_content }}"
+        dest: "{{ flow_config_path }}"
+        mode: '0644'
